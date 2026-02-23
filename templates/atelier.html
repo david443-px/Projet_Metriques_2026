@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Atelier - Météo Paris</title>
+
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    async function drawChart() {
+      const response = await fetch(window.location.origin + '/paris_weathercode');;
+      const json = await response.json();
+
+      const data = new google.visualization.DataTable();
+      data.addColumn('string', 'Code météo');
+      data.addColumn('number', 'Occurrences (24h)');
+
+      json.forEach(item => {
+        data.addRow([item.code, item.count]);
+      });
+
+      const options = {
+        title: "Répartition des codes météo à Paris (prochaines 24h)"
+      };
+
+      const chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }
+  </script>
+</head>
+
+<body>
+  <h1>Atelier : indicateur météo (PieChart)</h1>
+  <p>On affiche la répartition des <b>weather_code</b> sur les prochaines 24h.</p>
+  <div id="chart_div" style="width: 100%; max-width: 900px; height: 500px;"></div>
+</body>
+</html>

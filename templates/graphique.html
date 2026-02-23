@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Rapport météo Paris</title>
+
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    async function drawChart() {
+      // Récupère le JSON de ton API Flask
+      const response = await fetch('/paris');
+      const json = await response.json();
+
+      // Prépare les données pour Google Charts
+      const data = new google.visualization.DataTable();
+      data.addColumn('string', 'Heure');
+      data.addColumn('number', 'Température (°C)');
+
+      // Exemple: on n’affiche pas tout, juste 24 premiers points (1 journée)
+      const rows = json.slice(0, 24).map(item => {
+        // item.time = "2026-02-23T12:00" par ex
+        const heure = item.time.split('T')[1]; // "12:00"
+        return [heure, item.temperature];
+      });
+
+      data.addRows(rows);
+
+      const options = {
+        title: 'Température à Paris (prochaines 24h)',
+        curveType: 'function',
+        legend: { position: 'bottom' }
+      };
+
+      const chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }
+  </script>
+</head>
+
+<body>
+  <h1>Rapport météo Paris</h1>
+  <div id="chart_div" style="width: 100%; max-width: 900px; height: 500px;"></div>
+</body>
+</html>
